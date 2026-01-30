@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-// import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const Projects = () => {
 
-  // const genAI = new GoogleGenerativeAI("AIzaSyDd0auZ0FAOhmdpjKv__1VAkPhRD25eoAs")
-  // const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" })
+  
 
   const [input, setInput] = useState("");
   const [format, setFormat] = useState("text");
