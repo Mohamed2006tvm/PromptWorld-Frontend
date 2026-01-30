@@ -51,7 +51,7 @@ Return ONLY the ${format.toUpperCase()} output.
     setResponse("Generating...");
 
     try {
-      const res = await fetch('http://localhost:5000/generate', {
+      const res = await fetch('https://promptworld-backend-88qg.onrender.com/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: finalPrompt })
