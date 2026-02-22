@@ -1,6 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { UserData } from '../UserContext'
+import { supabase } from '../Supabase'
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || 'https://promptworld-backend-88qg.onrender.com'
 
 const Projects = () => {
+  const { credits, isAdmin, refreshCredits } = useContext(UserData)
+
   const [input, setInput] = useState("");
   const [format, setFormat] = useState("text");
   const [type, setType] = useState("")
@@ -10,7 +16,7 @@ const Projects = () => {
   const [description, setDescription] = useState("")
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState("Your Output is Apear here...");
+  const [response, setResponse] = useState("Your output will appear here...");
 
   const finalPrompt = `
 You are an expert prompt engineer.
@@ -44,28 +50,46 @@ Return ONLY the ${format.toUpperCase()} output.
 
   const generate = async () => {
     if (!input || !type || !platform || !app) return;
+    if (!isAdmin && credits !== null && credits <= 0) {
+      setResponse('⛔ You have no credits left. Upgrade to continue generating prompts.');
+      return;
+    }
 
     setLoading(true);
-    setResponse("Generating...");
+    setResponse('Generating...');
 
     try {
-      const res = await fetch('https://promptworld-backend-88qg.onrender.com/generate', {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      const res = await fetch(`${BACKEND}/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt })
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ prompt: finalPrompt }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Server error");
+        if (res.status === 403) {
+          setResponse('⛔ ' + (data.error || 'Out of credits'));
+        } else if (res.status === 401) {
+          setResponse('🔒 Please log in to generate prompts.');
+        } else {
+          setResponse('Error: ' + (data.error || 'Something went wrong'));
+        }
+        return;
       }
 
-      const data = await res.json();
-      console.log(data);
       setResponse(data.output);
+      // Refresh the credit badge in Navbar
+      refreshCredits();
     } catch (err) {
       console.error(err);
-      setResponse(`Error: Something went wrong`);
+      setResponse('Error: Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -252,19 +276,27 @@ Return ONLY the ${format.toUpperCase()} output.
               </div>
 
               <div className="flex flex-col gap-2 w-[90%] mx-auto mt-6">
-                <button
-                  onClick={generate}
-                  className="
-      w-full py-3 text-[18px] font-semibold text-black
-      bg-[#00ff88] rounded-lg
-      transition-all duration-200
-      hover:bg-[#00e67a]
-      active:scale-[0.98]
-      focus:outline-none 
-      "
-                >
-                  {loading ? "Generating..." : "Generate Prompt"}
-                </button>
+                {!isAdmin && credits !== null && credits <= 0 ? (
+                  <div className="w-full py-3 text-center text-sm font-semibold text-red-400
+                    bg-red-500/10 border border-red-500/30 rounded-lg">
+                    ⛔ Out of Credits — You've used all your free generations
+                  </div>
+                ) : (
+                  <button
+                    onClick={generate}
+                    disabled={loading}
+                    className={`
+                      w-full py-3 text-[18px] font-semibold text-black
+                      rounded-lg transition-all duration-200
+                      focus:outline-none active:scale-[0.98]
+                      ${loading
+                        ? 'bg-[#00ff88]/50 cursor-not-allowed'
+                        : 'bg-[#00ff88] hover:bg-[#00e67a]'}
+                    `}
+                  >
+                    {loading ? 'Generating...' : 'Generate Prompt'}
+                  </button>
+                )}
               </div>
 
 
