@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
 
 const Projects = () => {
-
-  
-
   const [input, setInput] = useState("");
   const [format, setFormat] = useState("text");
   const [type, setType] = useState("")
   const [platform, setPlatform] = useState("")
   const [app, setApps] = useState("")
   const [color, setColor] = useState("")
+  const [description, setDescription] = useState("")
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState("Your Output is Apear here...");
@@ -97,7 +95,7 @@ Return ONLY the ${format.toUpperCase()} output.
 
   const apps = [
     { label: "Web Application", value: "Web Application" },
-    { label: "Mobile App", value: "Mobile Ap" },
+    { label: "Mobile App", value: "Mobile App" },
     { label: "Desktop App", value: "Desktop App" },
     { label: "Hybrid App", value: "Hybrid App" }
   ];
@@ -247,7 +245,7 @@ Return ONLY the ${format.toUpperCase()} output.
 
 
                 <textarea required type="text" placeholder='Describe what your project does and its main function...' className={`w-full bg-[#2A2A2A] p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ff88]
-                    ${color === "" ? "text-[#868686]" : "text-white"}`} onChange={(e) => { setColor(e.target.value) }} />
+                    ${description === "" ? "text-[#868686]" : "text-white"}`} onChange={(e) => { setDescription(e.target.value) }} />
 
 
 

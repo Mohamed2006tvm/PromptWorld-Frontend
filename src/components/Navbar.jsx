@@ -1,12 +1,12 @@
 import React, { useContext } from 'react'
 import { Moon, Search } from 'lucide-react'
 import SignOutButton from './auth/Signout'
-import { userData } from './Dashboard'
+import { UserData } from '../UserContext'
 
 
 const Navbar = () => {
 
-  const {user,email,name,avatar} = useContext(userData)
+  const { avatar } = useContext(UserData)
 
   const iconBtn =
     "flex items-center justify-center border-2 border-[#2a2a2a] rounded-[10px] p-2 " +
@@ -35,7 +35,7 @@ const Navbar = () => {
           <Moon size={20} />
         </button>
         <img src={avatar} alt="" className="w-9 h-9 rounded-full" />
-        <SignOutButton/>
+        <SignOutButton />
       </div>
     </div>
   )

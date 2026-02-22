@@ -1,22 +1,21 @@
-import React, { useEffect, useState, createContext } from 'react'
+import React, { useEffect, useState } from 'react'
 import SideNav from './SideNav'
 import Navbar from './Navbar'
 import { Outlet } from 'react-router-dom'
 import { supabase } from '../Supabase'
 
-export const userData = createContext()
+import { UserData } from '../UserContext'
 
 const Dashboard = () => {
 
   const [user, setUser] = useState(null)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     const getUser = async () => {
       const { data, error } = await supabase.auth.getUser()
-      console.log(user)
       if (!error)
         setUser(data.user)
-      console.log(user)
     }
     getUser()
   }, [])
@@ -32,23 +31,17 @@ const Dashboard = () => {
   const avatar = user?.user_metadata?.picture
 
   return (
-    <userData.Provider value={{ user, email, name, avatar }}>
-      <div className="flex h-screen">
+    <UserData.Provider value={{ user, email, name, avatar }}>
+      <div className="flex h-screen overflow-hidden">
 
-        <SideNav />
+        <SideNav collapsed={collapsed} setCollapsed={setCollapsed} />
 
-
-
-
-        <div className="w-full h-screen overflow-y-auto no-scrollbar flex flex-col">
+        <div className="flex-1 h-screen overflow-y-auto no-scrollbar flex flex-col transition-all duration-300">
           <Navbar />
-
-
-
           <Outlet />
         </div>
       </div>
-    </userData.Provider>
+    </UserData.Provider>
   )
 }
 
